@@ -11,13 +11,16 @@ type arg =
     }
 
 let parseArgs (arguments:string[]) =
-    { 
-        Assembly = arguments.[0];
-        Category = if arguments.Length > 1 then
-                        Some arguments.[1]
-                   else
-                        None  
-    }
+    if arguments.Length = 0 then
+        failwith "Command must be run with test assembly as a parameter."
+    else
+        { 
+            Assembly = arguments.[0];
+            Category = if arguments.Length > 1 then
+                            Some arguments.[1]
+                       else
+                            None  
+        }
 
 // DO EVERYTHING!
 let testCluster = new Uri("http://localhost:8085/")
