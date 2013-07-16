@@ -5,15 +5,32 @@ open Nunit
 open System.Xml.Linq
 open Microsoft.Hadoop.MapReduce
 open Microsoft.Hadoop.MapReduce.Json
+open Ionic.Zip
 
 open Microsoft.Hadoop.MapReduce.HdfsExtras.Hdfs
 
+/// <summary>
+/// Represents a single test, used so that assembly and test can be sent through as JSON.
+/// </summary>
 type Test() =
     member val Assembly = "" with get, set
     member val Test = "" with get, set
 
+/// <summary>
+/// A type to run tests and produce results
+/// </summary>
+/// <remarks>
+/// Because Hadoop operates on a line basis, and our Nunit results have whitespace in them
+/// the entire Nunit result is base 64 encoded to fit on one line without losing whitespace
+/// </remarks>
 type NunitMapper() =
     inherit JsonInMapperBase<Test>()
+
+    override this.Initialize(context) =
+        // First job is to unzip the annoying zip file we had to create...
+        System.IO.Directory.EnumerateFiles(System.IO.Directory.GetCurrentDirectory(), "*.zip")
+        |> Seq.iter (fun path -> let file = ZipFile.Read(path)
+                                 file.ExtractAll(".", ExtractExistingFileAction.OverwriteSilently) )
 
     override this.Map(input : Test, context : MapperContext) =
 
@@ -24,15 +41,28 @@ type NunitMapper() =
                         {
                             context.Log(sprintf "Attempting to run test %s from assembly %s" input.Test input.Assembly)
                             
-                            let! result = runNunit input.Assembly input.Test
+                            try
+                                let! result = runNunit input.Assembly input.Test
 
-                            match result with
-                            | Some(res) -> context.EmitKeyValue(input.Assembly, toB64Encoded res)
-                            | None -> context.Log("test failed abnormally")
-                                      // TODO: Create phoney failure? Or trigger a re-run somehow?
+                                match result with
+                                | Some(res) -> context.EmitKeyValue(input.Assembly, toB64Encoded res)
+                                | None -> context.Log("test failed abnormally")
+                                          // TODO: Create phoney failure? Or trigger a re-run somehow?
+                             with
+                             | ex -> context.Log("test failed unexpectedly :" + ex.Message)
                         } 
         Async.RunSynchronously task
 
+/// <summary>
+/// A type to reduce test results, combines results from the mapper together to give a single result
+/// </summary>
+/// <remarks>
+/// Because Hadoop operates on a line basis, and our Nunit results have whitespace in them
+/// the entire Nunit result is base 64 encoded to fit on one line without losing whitespace.
+/// Further, because we can run through the reducer more than once, the end result of the reducer
+/// is still a key / value pair - although the final result should only have one value. And it is
+/// still base 64 encoded.
+/// </remarks>
 type NunitReducer() =
     inherit ReducerCombinerBase()
 
@@ -46,7 +76,11 @@ type NunitReducer() =
 
         context.EmitKeyValue(key, toB64Encoded reduction)
 
-type NunitJob(assemblyPath : string) =
+
+/// <summary>
+/// Represents an Nunit map / reduce job.
+/// </summary>
+type NunitJob(assemblyPath, [<System.ParamArrayAttribute>] additionalFiles : string []) =
     inherit HadoopJob<NunitMapper, NunitReducer, NunitReducer>()
 
     new() = NunitJob("")
@@ -57,5 +91,11 @@ type NunitJob(assemblyPath : string) =
         config.MaximumAttemptsMapper <- 2
         config.InputPath <- "input/nunit"
         config.OutputFolder <- "output/nunit"
+
+        // Include the assembly, if must be added to HDFS outside of here... (ATM)
         if not (System.String.IsNullOrEmpty(assemblyPath)) then config.FilesToInclude.Add(assemblyPath)
+
+        // Include the extra assemblies, which must be added to HDFS outside of here... (ATM)
+        additionalFiles |> Seq.iter config.FilesToInclude.Add
+
         config

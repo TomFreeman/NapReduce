@@ -3,11 +3,13 @@ open MapReduce
 open MapReduceHelpers
 open Nunit
 open Microsoft.Hadoop.MapReduce
+open Ionic.Zip
 
 type arg = 
     {
-        Assembly : string;
+        Assembly : string
         Category : string option
+        AdditionalFiles : string [] option
     }
 
 let parseArgs (arguments:string[]) =
@@ -19,7 +21,12 @@ let parseArgs (arguments:string[]) =
             Category = if arguments.Length > 1 then
                             Some arguments.[1]
                        else
-                            None  
+                            None
+            AdditionalFiles = if arguments.Length > 2 then
+                                Some (Array.sub arguments 2 (arguments.Length - 2)
+                                      |> Array.map (fun str -> str.Trim() ))
+                              else
+                                None
         }
 
 // DO EVERYTHING!
@@ -31,15 +38,13 @@ let run (args : arg) =
 
     // Clean up the input files, in case something terrible has happened and we have invalid input that's not getting deleted
     hd.StorageSystem.Delete("input/nunit")
-    hd.StorageSystem.Delete("input/nunitAssemblies")
 
-    // Store the test assembly in the hadoop fs
+    // Store only the assembly name in the json representation
     let assemblyName = args.Assembly.Substring(args.Assembly.LastIndexOf(@"\") + 1)
-    let remoteAssemblyPath = "input/nunitAssemblies/" + assemblyName
-    hd.StorageSystem.CopyFromLocal(args.Assembly, remoteAssemblyPath)
-    let realAssemblyPath = hd.StorageSystem.GetFullyQualifiedPath(remoteAssemblyPath)
 
-    let tests = parseMethods args.Assembly args.Category
+    // Build out the list of tests to run
+    let methods, assemblies = parseMethods args.Assembly args.Category
+    let tests = methods
                 |> Seq.map (fun name -> let test = new Test() 
                                         test.Assembly <- assemblyName
                                         test.Test <- name
@@ -47,8 +52,23 @@ let run (args : arg) =
 
     hd.StorageSystem.WriteAllLines("input/nunit/input.txt", tests)
 
+    let zipFileName = System.Guid.NewGuid().ToString() + ".zip"
+    let zipFile = new ZipFile(zipFileName)
+
+    // Grr... No methods to determine relative path on IO.Path
+    let currentDir = IO.Directory.GetCurrentDirectory() + @"\"
+    let additionalFiles = 
+        match args.AdditionalFiles with
+        | None -> assemblies
+        | Some(files) -> files |> Array.append assemblies
+        |> Array.map (fun path -> path.Replace(currentDir, "") )
+
+    zipFile.AddFiles(additionalFiles, true, null)
+
+    zipFile.Save()
+                       
     // Execute the job, including the dll
-    let result = hd.MapReduceJob.ExecuteJob<NunitJob>([|realAssemblyPath|])
+    let result = hd.MapReduceJob.ExecuteJob<NunitJob>(args.Assembly :: [zipFileName] |> List.toArray)
 
     // Pull the results, and parse them back into an nunit xml file
     hd.StorageSystem.LsFiles("output/nunit")

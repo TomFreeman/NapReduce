@@ -37,11 +37,16 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DocumentationFile>bin\Release\FastNunit.XML</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
-    <StartArguments>..\..\..\FastNunit.Tests\bin\Debug\FastNunit.Tests.dll</StartArguments>
+    <StartArguments>Nokia.Media.MusicClient.Spec.dll ci Nokia.Media.MusicClient.BDD-x86.xap Environments.xml Nokia.Media.MusicClient.Spec.dll.config</StartArguments>
     <OtherFlags>
     </OtherFlags>
+    <StartWorkingDirectory>C:\Code\client\master\Nokia.Media.MusicClient.Spec\bin\BDD\</StartWorkingDirectory>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Ionic.Zip">
+      <HintPath>..\packages\DotNetZip.1.9.1.8\lib\net20\Ionic.Zip.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.Hadoop.Client">
       <HintPath>..\packages\Microsoft.Hadoop.MapReduce.0.9.4925.22540\lib\net40\Microsoft.Hadoop.Client.dll</HintPath>
       <Private>True</Private>
