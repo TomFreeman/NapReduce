@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FastNunit", "FastNunit\FastNunit.fsproj", "{8E3A9421-2D34-4F15-9399-DFF1549F6E1E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastNunit.Tests", "FastNunit.Tests\FastNunit.Tests.csproj", "{5C6CFDDD-E698-4368-9253-8C8365C3CFFD}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FastNunit.Mapper.Tests", "FastNunit.Mapper.Tests\FastNunit.Mapper.Tests.fsproj", "{EF1A5C03-C21A-4750-B9C6-25B10C208A38}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8E3A9421-2D34-4F15-9399-DFF1549F6E1E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E3A9421-2D34-4F15-9399-DFF1549F6E1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E3A9421-2D34-4F15-9399-DFF1549F6E1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E3A9421-2D34-4F15-9399-DFF1549F6E1E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C6CFDDD-E698-4368-9253-8C8365C3CFFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C6CFDDD-E698-4368-9253-8C8365C3CFFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C6CFDDD-E698-4368-9253-8C8365C3CFFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C6CFDDD-E698-4368-9253-8C8365C3CFFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF1A5C03-C21A-4750-B9C6-25B10C208A38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF1A5C03-C21A-4750-B9C6-25B10C208A38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF1A5C03-C21A-4750-B9C6-25B10C208A38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF1A5C03-C21A-4750-B9C6-25B10C208A38}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
