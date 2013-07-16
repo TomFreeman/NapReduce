@@ -1,6 +1,7 @@
 ﻿module FastNunit.Mapper.Tests
 
 open MapReduce
+open MapReduceHelpers
 open FsUnit
 open FsUnit.Xunit
 open Xunit
@@ -34,7 +35,8 @@ let RunMultipleTests input =
     let output = StreamingUnit.Execute<NunitMapper, NunitReducer>(input)
 
     output.Result.Count |> should equal 1
-    Seq.head output.Result    
+    Seq.head output.Result
+    |> decodeKeyValueResult
 
 [<Fact>]
 let ``Pointing at the wrong assembly path will result in no results``() =

@@ -53,9 +53,8 @@ let run (args : arg) =
     // Pull the results, and parse them back into an nunit xml file
     hd.StorageSystem.LsFiles("output/nunit")
     |> Seq.filter (fun path -> not (path.EndsWith("Success", System.StringComparison.OrdinalIgnoreCase)))
-    |> (fun filteredList -> if (Seq.length filteredList) = 1 then
-                                let text = hd.StorageSystem.ReadAllText(Seq.head filteredList)
-                                let result = text.Substring(text.IndexOf("\t") + 1) |> fromB64Encoded
+    |> (fun filteredList -> if (Seq.length filteredList) = 1 then                                
+                                let result = hd.StorageSystem.ReadAllText(Seq.head filteredList) |> decodeKeyValueResult
                                 IO.File.WriteAllText("result.xml", result)
                             else
                                 failwith "Too many results files, reduction failed")    
