@@ -40,10 +40,12 @@ let RunMultipleTests input =
 
 [<Fact>]
 let ``Pointing at the wrong assembly path will result in no results``() =
-    let testInput = [|"{\"Assembly\":\"FastNunit.Tests.dll\",\"Test\":\"FastNunit.Tests.ParallelTests.AsyncTestsAreIsolated\"}"|]
-    let output = StreamingUnit.Execute<NunitMapper, NunitReducer>(testInput)
+    let result = RunMultipleTests [|"{\"Assembly\":\"FastNunit.Tests.dll\",\"Test\":\"FastNunit.Tests.ParallelTests.AsyncTestsAreIsolated\"}"|]
 
-    output.Result.Count |> should equal 0
+    let doc = XDocument.Parse(result)
+
+    doc.Root.Attribute(XName.Get("total")).Value |> should equal "1"
+    doc.Root.Attribute(XName.Get("failures")).Value |> should equal "1"
 
 [<Fact>]
 let ``Pointing at the right assembly path will result in tests being run``() =

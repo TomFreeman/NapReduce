@@ -81,6 +81,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NunitAssemblyParser.fs" />
     <Compile Include="Nunit.fs" />
     <None Include="App.config" />
     <None Include="packages.config" />

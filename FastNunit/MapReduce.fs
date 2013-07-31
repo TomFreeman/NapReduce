@@ -42,7 +42,11 @@ type NunitMapper() =
                             context.Log(sprintf "Attempting to run test %s from assembly %s" input.Test input.Assembly)
                             
                             try
-                                let! result = runNunit input.Assembly input.Test
+                                let! result, stderr = runNunit input.Assembly input.Test context.Log
+
+                                match stderr with
+                                | Some(text) -> context.Log("-------------------------\n\rError Output: " + text + "\n\r-------------------------")
+                                | None -> ()
 
                                 match result with
                                 | Some(res) -> context.EmitKeyValue(input.Assembly, toB64Encoded res)
@@ -80,17 +84,25 @@ type NunitReducer() =
 /// <summary>
 /// Represents an Nunit map / reduce job.
 /// </summary>
-type NunitJob(assemblyPath, [<System.ParamArrayAttribute>] additionalFiles : string []) =
+type NunitJob(assemblyPath, tasks, [<System.ParamArrayAttribute>] additionalFiles : string []) =
     inherit HadoopJob<NunitMapper, NunitReducer, NunitReducer>()
 
-    new() = NunitJob("")
+    new() = NunitJob("", "")
 
     override this.Configure(context) = 
         let config = new HadoopJobConfiguration()
         config.DeleteOutputFolder <- true
-        config.MaximumAttemptsMapper <- 2
         config.InputPath <- "input/nunit"
         config.OutputFolder <- "output/nunit"
+
+        config.MaximumAttemptsMapper <- 2
+        config.Verbose <- true
+
+        // Force the number of tasks, if we can.
+        if not (System.String.IsNullOrEmpty(tasks)) then 
+            config.AdditionalGenericArguments.Add("-D \"mapred.tasktracker.map.tasks.maximum=" +  tasks + "\"")
+
+        config.AdditionalGenericArguments.Add("-D \"mapred.task.timeout=1200000\"")
 
         // Include the assembly, if must be added to HDFS outside of here... (ATM)
         if not (System.String.IsNullOrEmpty(assemblyPath)) then config.FilesToInclude.Add(assemblyPath)

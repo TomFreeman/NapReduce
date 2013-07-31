@@ -2,6 +2,7 @@
 open MapReduce
 open MapReduceHelpers
 open Nunit
+open NunitAssemblyParser
 open Microsoft.Hadoop.MapReduce
 open Ionic.Zip
 
@@ -30,7 +31,7 @@ let parseArgs (arguments:string[]) =
         }
 
 // DO EVERYTHING!
-let testCluster = new Uri("http://localhost:8085/")
+let testCluster = new Uri("http://localhost:8084/")
 
 let run (args : arg) =
 
@@ -50,7 +51,9 @@ let run (args : arg) =
                                         test.Test <- name
                                         test |> Newtonsoft.Json.JsonConvert.SerializeObject )
 
-    hd.StorageSystem.WriteAllLines("input/nunit/input.txt", tests)
+    // Abuse map/reduce by creating hundreds of little files to bump up the mappers.
+    tests 
+    |> Seq.iteri (fun index test -> hd.StorageSystem.WriteAllText(sprintf "input/nunit/%d" index, test))
 
     let zipFileName = System.Guid.NewGuid().ToString() + ".zip"
     let zipFile = new ZipFile(zipFileName)
@@ -68,14 +71,14 @@ let run (args : arg) =
     zipFile.Save()
                        
     // Execute the job, including the dll
-    let result = hd.MapReduceJob.ExecuteJob<NunitJob>(args.Assembly :: [zipFileName] |> List.toArray)
+    let result = hd.MapReduceJob.ExecuteJob<NunitJob>(args.Assembly :: "4" :: [zipFileName] |> List.toArray)
 
     // Pull the results, and parse them back into an nunit xml file
     hd.StorageSystem.LsFiles("output/nunit")
     |> Seq.filter (fun path -> not (path.EndsWith("Success", System.StringComparison.OrdinalIgnoreCase)))
     |> (fun filteredList -> if (Seq.length filteredList) = 1 then                                
-                                let result = hd.StorageSystem.ReadAllText(Seq.head filteredList) |> decodeKeyValueResult
-                                IO.File.WriteAllText("result.xml", result)
+                                let out = hd.StorageSystem.ReadAllText(Seq.head filteredList) |> decodeKeyValueResult
+                                IO.File.WriteAllText("result.xml", out)
                             else
                                 failwith "Too many results files, reduction failed")    
 
