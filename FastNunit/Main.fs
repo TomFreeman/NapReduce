@@ -1,10 +1,10 @@
 ﻿open System
 open Nunit
 open NunitAssemblyParser
-open Microsoft.Hadoop.MapReduce
 open Ionic.Zip
 open System.Xml.Linq
 open CommandLine
+open userManagement
 
 type MessageForActor = 
    | ProcessTestResult of XDocument
@@ -49,16 +49,20 @@ let run (args : arg) =
     
     let listener = mailboxLoop
 
+    let userManager = new UserManager()
+
     let methods, assemblies = parseMethods args.Assembly args.Category
 
     // Do the tests
     let rec doTests testList currentJob =
         match testList with
         | (assembly, test) :: remaining -> 
-            match userManager.GetFree with
+            match userManager.GetFree() with
             | Some(username, password) -> 
                 async {
+                    do! userManager.AssignUser(username)
                     let! result, errLog = runNunit assembly test username password ignore
+                    do! userManager.FreeUser(username)
                     result
                     |> XDocument.Parse
                     |> ProcessTestResult
