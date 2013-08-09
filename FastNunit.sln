@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastNunit.Tests", "FastNuni
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FastNunit.Mapper.Tests", "FastNunit.Mapper.Tests\FastNunit.Mapper.Tests.fsproj", "{EF1A5C03-C21A-4750-B9C6-25B10C208A38}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Packager", "Packager\Packager.fsproj", "{FEED7728-ABC9-4011-BB75-8BEDF0F848A5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,10 @@ Global
 		{EF1A5C03-C21A-4750-B9C6-25B10C208A38}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EF1A5C03-C21A-4750-B9C6-25B10C208A38}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EF1A5C03-C21A-4750-B9C6-25B10C208A38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FEED7728-ABC9-4011-BB75-8BEDF0F848A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FEED7728-ABC9-4011-BB75-8BEDF0F848A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FEED7728-ABC9-4011-BB75-8BEDF0F848A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FEED7728-ABC9-4011-BB75-8BEDF0F848A5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

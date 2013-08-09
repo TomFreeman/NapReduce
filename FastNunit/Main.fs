@@ -1,92 +1,91 @@
 ﻿open System
-open MapReduce
-open MapReduceHelpers
 open Nunit
 open NunitAssemblyParser
 open Microsoft.Hadoop.MapReduce
 open Ionic.Zip
+open System.Xml.Linq
+open CommandLine
 
-type arg = 
-    {
-        Assembly : string
-        Category : string option
-        AdditionalFiles : string [] option
-    }
+type MessageForActor = 
+   | ProcessTestResult of XDocument
+   | GetResults of (XDocument) AsyncReplyChannel
 
-let parseArgs (arguments:string[]) =
-    if arguments.Length = 0 then
-        failwith "Command must be run with test assembly as a parameter."
-    else
-        { 
-            Assembly = arguments.[0];
-            Category = if arguments.Length > 1 then
-                            Some arguments.[1]
-                       else
-                            None
-            AdditionalFiles = if arguments.Length > 2 then
-                                Some (Array.sub arguments 2 (arguments.Length - 2)
-                                      |> Array.map (fun str -> str.Trim() ))
-                              else
-                                None
-        }
+let mailboxLoop =
+   MailboxProcessor.Start(fun inbox ->
+      let rec loop acc =
+         async {
+            let! message = inbox.Receive()
 
-// DO EVERYTHING!
-let testCluster = new Uri("http://localhost:8084/")
+            match message with
+            | ProcessTestResult (result) ->
+                return! loop (reduceNunit (result :: [acc]))
+            | GetResults replyChannel ->
+               replyChannel.Reply(acc)
+         }
+      loop (new XDocument())
+      )
+
+type arg() = 
+    let makeOption v =
+        if v = null then
+            None
+        else
+            Some(v)
+
+    [<Option('a', "assembly", Required=true, HelpText="Input assembly containing Nunit tests.")>]
+    member val Assembly = "" with get, set
+    [<Option('c', "category", DefaultValue=null, HelpText="Optionally provide a category")>]
+    member val Cat = "" with get, set
+    [<Option('o', "ouptut-file", Required=true, HelpText="Provide the name for an output file.")>]
+    member val Out = "" with get, set
+
+    member this.Category 
+        with get () = makeOption this.Cat
+
+    member this.OutputFile
+        with get () = makeOption this.Out
 
 let run (args : arg) =
+    
+    let listener = mailboxLoop
 
-    let hd = Hadoop.Connect()
-
-    // Clean up the input files, in case something terrible has happened and we have invalid input that's not getting deleted
-    hd.StorageSystem.Delete("input/nunit")
-
-    // Store only the assembly name in the json representation
-    let assemblyName = args.Assembly.Substring(args.Assembly.LastIndexOf(@"\") + 1)
-
-    // Build out the list of tests to run
     let methods, assemblies = parseMethods args.Assembly args.Category
-    let tests = methods
-                |> Seq.map (fun name -> let test = new Test() 
-                                        test.Assembly <- assemblyName
-                                        test.Test <- name
-                                        test |> Newtonsoft.Json.JsonConvert.SerializeObject )
 
-    // Abuse map/reduce by creating hundreds of little files to bump up the mappers.
-    tests 
-    |> Seq.iteri (fun index test -> hd.StorageSystem.WriteAllText(sprintf "input/nunit/%d" index, test))
+    // Do the tests
+    let rec doTests testList currentJob =
+        match testList with
+        | (assembly, test) :: remaining -> 
+            match userManager.GetFree with
+            | Some(username, password) -> 
+                async {
+                    let! result, errLog = runNunit assembly test username password ignore
+                    result
+                    |> XDocument.Parse
+                    |> ProcessTestResult
+                    |> mailboxLoop.Post }
+                |> fun job -> job :: [currentJob]
+                |> fun task -> doTests remaining (Async.Parallel(task) |> Async.Ignore)
+            | None -> System.Threading.Thread.Sleep(10000)
+                      doTests ((assembly, test) :: remaining) currentJob
+        | [] -> currentJob
 
-    let zipFileName = System.Guid.NewGuid().ToString() + ".zip"
-    let zipFile = new ZipFile(zipFileName)
+    let testsToRun = methods
+                     |> Seq.map (fun t -> t, args.Assembly)
+                     |> Seq.toList
 
-    // Grr... No methods to determine relative path on IO.Path
-    let currentDir = IO.Directory.GetCurrentDirectory() + @"\"
-    let additionalFiles = 
-        match args.AdditionalFiles with
-        | None -> assemblies
-        | Some(files) -> files |> Array.append assemblies
-        |> Array.map (fun path -> path.Replace(currentDir, "") )
+    doTests testsToRun (async { return () })
+    |> Async.RunSynchronously
 
-    zipFile.AddFiles(additionalFiles, true, null)
-
-    zipFile.Save()
-                       
-    // Execute the job, including the dll
-    let result = hd.MapReduceJob.ExecuteJob<NunitJob>(args.Assembly :: "4" :: [zipFileName] |> List.toArray)
-
-    // Pull the results, and parse them back into an nunit xml file
-    hd.StorageSystem.LsFiles("output/nunit")
-    |> Seq.filter (fun path -> not (path.EndsWith("Success", System.StringComparison.OrdinalIgnoreCase)))
-    |> (fun filteredList -> if (Seq.length filteredList) = 1 then                                
-                                let out = hd.StorageSystem.ReadAllText(Seq.head filteredList) |> decodeKeyValueResult
-                                IO.File.WriteAllText("result.xml", out)
-                            else
-                                failwith "Too many results files, reduction failed")    
+    let result = listener.PostAndReply GetResults
+    result.Save("results.xml")
 
 // Generic entry point, just to wrap args parsing and exception logging
 [<EntryPoint>]
 let main argv = 
     
-    let args = parseArgs argv
+    let args = new arg()
+    if not (CommandLine.Parser.Default.ParseArguments(argv, args)) then
+        failwith "couldn't parse the command line"
 
     try
         do run args

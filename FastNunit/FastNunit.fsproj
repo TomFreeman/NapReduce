@@ -43,6 +43,10 @@
     <StartWorkingDirectory>C:\Code\client\master\Nokia.Media.MusicClient.Spec\bin\BDD\</StartWorkingDirectory>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CommandLine">
+      <HintPath>..\packages\CommandLineParser.1.9.71\lib\net45\CommandLine.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Ionic.Zip">
       <HintPath>..\packages\DotNetZip.1.9.1.8\lib\net20\Ionic.Zip.dll</HintPath>
       <Private>True</Private>
@@ -106,9 +110,14 @@
     <None Include="MRLib\Microsoft.Hadoop.Client.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <Compile Include="MapReduceHelpers.fs" />
-    <Compile Include="MapReduce.fs" />
     <Compile Include="Main.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Packager\Packager.fsproj">
+      <Name>Packager</Name>
+      <Project>{feed7728-abc9-4011-bb75-8bedf0f848a5}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

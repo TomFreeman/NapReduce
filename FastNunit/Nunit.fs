@@ -64,7 +64,7 @@
     /// <summary>
     /// Runs the nunit test
     /// </summary>
-    let runNunit assembly test (logger : string -> unit) =
+    let runNunit assembly test username password (logger : string -> unit) =
         async
             {
             let id = System.Guid.NewGuid().ToString()
@@ -80,6 +80,8 @@
             proc.StartInfo.RedirectStandardOutput <- true
             proc.StartInfo.RedirectStandardError <- true
             proc.StartInfo.UseShellExecute <- false
+            proc.StartInfo.UserName <- username
+            proc.StartInfo.Password <- password
             // proc.StartInfo.CreateNoWindow <- false
 
             proc.Start() |> ignore
@@ -90,7 +92,7 @@
             // If the results file exists, return that, otherwise return the output from the test to aid debugging
             // TODO: Somehow get the output from the test into the XML - so we can see what happened.
             return if File.Exists(id) then
-                        Some(File.ReadAllText(id)), None
+                        File.ReadAllText(id), None
                    else
 ////                        let text = proc.StandardOutput.ReadToEnd()
 ////                        failwith text
@@ -98,7 +100,7 @@
                         let stdout = proc.StandardOutput.ReadToEnd()
                         let stderr =  proc.StandardError.ReadToEnd()
                         let errorDoc = generateFakeFailure assembly test stdout stderr
-                        Some(errorDoc.ToString()), Some(stderr)
+                        errorDoc.ToString(), Some(stderr)
             }
 
     // Mutates node1 recursively! - beware!
