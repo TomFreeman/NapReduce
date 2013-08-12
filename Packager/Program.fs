@@ -15,10 +15,10 @@ type Argument() =
     member val Assembly = "" with get, set
     [<Option('c', "category", DefaultValue=null, HelpText="Optionally provide a category")>]
     member val Cat = "" with get, set
-    [<Option('a', "additional-files", DefaultValue=null, HelpText="Optionally provide extra files that can't be resolved as direct dependencies")>]
+    [<Option('f', "additional-files", DefaultValue=null, HelpText="Optionally provide extra files that can't be resolved as direct dependencies")>]
     member val Extras = "" with get, set
     [<Option('o', "ouptut-file", Required=true, HelpText="Provide the name for an output file.")>]
-    member val Out = "" with get, set
+    member val OutputFile = "" with get, set
 
     member this.AdditionalFiles 
         with get () = 
@@ -30,18 +30,10 @@ type Argument() =
     member this.Category 
         with get () = makeOption this.Cat
 
-    member this.OutputFile
-        with get () = makeOption this.Out
-
-let run argv =
-    let args = new Argument()
-
-    if not (Parser.Default.ParseArguments(argv, args)) then
-        failwith "Couldn't parse arguments."
-
+let run (args:Argument) =
     let methods, assemblies = parseMethods args.Assembly args.Category
 
-    let zipFileName = System.Guid.NewGuid().ToString() + ".zip"
+    let zipFileName = args.OutputFile
     let zipFile = new ZipFile(zipFileName)
 
     // Grr... No methods to determine relative path on IO.Path
@@ -56,12 +48,21 @@ let run argv =
 
     zipFile.Save()
 
-
 [<EntryPoint>]
-let main argv = 
-    try
-        do run argv
-        0
-    with
-        | ex -> Console.WriteLine(ex.Message) 
-                -1
+let main argv =
+    let args = new Argument()
+
+    let showHelp () =
+        let help = CommandLine.Text.HelpText.AutoBuild(args)
+        Console.Write (help.ToString())
+        -1
+
+    if not (Parser.Default.ParseArguments(argv, args)) then
+        showHelp ()
+    else
+        try
+            do run args
+            0
+        with
+            | ex -> Console.WriteLine(ex.Message) 
+                    -1

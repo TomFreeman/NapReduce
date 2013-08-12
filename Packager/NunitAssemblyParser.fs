@@ -52,6 +52,7 @@
                                       |> getDependencies
                                       |> (fun ass -> a :: ass))
             |> List.concat
+            |> fun list -> (ass.GetName()) :: list
 
         // Get the paths for the required assemblies.               
         let assembliesNeeded = assem 

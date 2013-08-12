@@ -57,18 +57,22 @@ let run (args : arg) =
     let rec doTests testList currentJob =
         match testList with
         | (assembly, test) :: remaining -> 
+
+            // Try to get a user - potentially could be more than an Option is the service is down / the client is misbehaving
             match userManager.GetFree() with
             | Some(username, password) -> 
                 async {
                     do! userManager.AssignUser(username)
                     let! result, errLog = runNunit assembly test username password ignore
                     do! userManager.FreeUser(username)
+
                     result
                     |> XDocument.Parse
                     |> ProcessTestResult
                     |> mailboxLoop.Post }
-                |> fun job -> job :: [currentJob]
+                |> fun job -> job :: [currentJob] //Append the new job onto the old job, and run them both in parallel
                 |> fun task -> doTests remaining (Async.Parallel(task) |> Async.Ignore)
+
             | None -> System.Threading.Thread.Sleep(10000)
                       doTests ((assembly, test) :: remaining) currentJob
         | [] -> currentJob
@@ -88,12 +92,17 @@ let run (args : arg) =
 let main argv = 
     
     let args = new arg()
+    let showHelp () =
+        let help = CommandLine.Text.HelpText.AutoBuild(args)
+        Console.Write (help.ToString())
+        -1
+    
     if not (CommandLine.Parser.Default.ParseArguments(argv, args)) then
-        failwith "couldn't parse the command line"
-
-    try
-        do run args
-        0
-    with
-        | ex -> Console.WriteLine(ex.Message) 
-                -1
+        showHelp()
+    else
+        try
+            do run args
+            0
+        with
+            | ex -> Console.WriteLine(ex.Message) 
+                    -1

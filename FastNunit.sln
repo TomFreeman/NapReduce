@@ -9,6 +9,11 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FastNunit.Mapper.Tests", "F
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Packager", "Packager\Packager.fsproj", "{FEED7728-ABC9-4011-BB75-8BEDF0F848A5}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{4E67674F-3807-4450-A0CC-279A1C814069}"
+	ProjectSection(SolutionItems) = preProject
+		Run-Tests.ps1 = Run-Tests.ps1
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
