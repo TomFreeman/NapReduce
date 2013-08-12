@@ -43,7 +43,7 @@ invoke-command -ComputerName $remoteHost -Credential $credentials -port 80 -Scri
 	#Run the fast-nunit exe to do all those lovely tests.
 	$commandString = "$path\FastNunit.exe -a $ass -o $resultsFile"
 	
-	if($category)
+	if($cat)
 	{
 		$commandString += " -c:$cat"
 	}
