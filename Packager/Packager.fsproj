@@ -58,6 +58,7 @@
     <Compile Include="..\FastNunit\AssemblyInfo.fs">
       <Link>AssemblyInfo.fs</Link>
     </Compile>
+    <Compile Include="Helpers.fs" />
     <Compile Include="NunitAssemblyParser.fs" />
     <Compile Include="Program.fs" />
     <None Include="packages.config" />

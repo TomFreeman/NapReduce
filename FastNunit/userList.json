@@ -1,6 +1,7 @@
 ﻿{
 	"items" : [{
-		"username" : "test",
+		"Name" : "test",
+		"Status" : "OnHold",
 		"password" : "test"
 	}]
 }
