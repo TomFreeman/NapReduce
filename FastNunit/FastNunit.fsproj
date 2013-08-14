@@ -91,6 +91,7 @@
     <Compile Include="userManagement.fs" />
     <Compile Include="Main.fs" />
     <None Include="userList.json" />
+    <None Include="user.json" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Packager\Packager.fsproj">

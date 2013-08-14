@@ -64,11 +64,11 @@
     /// <summary>
     /// Runs the nunit test
     /// </summary>
-    let runNunit assembly test username password (logger : string -> unit) =
+    let runNunit assembly folder test username password (logger : string -> unit) =
         async
             {
             let id = System.Guid.NewGuid().ToString()
-            let proc = new Process()
+            use proc = new Process()
             proc.StartInfo.FileName <- @"c:\Program Files (x86)\NUnit 2.6.2\bin\nunit-console-x86.exe"
             proc.StartInfo.Arguments <- assembly + @" /run=" + test + @" /result=" + id + @" /noshadow"
 
@@ -82,7 +82,8 @@
             proc.StartInfo.UseShellExecute <- false
             proc.StartInfo.UserName <- username
             proc.StartInfo.Password <- password
-            // proc.StartInfo.CreateNoWindow <- false
+            proc.StartInfo.WorkingDirectory <- folder
+            proc.StartInfo.CreateNoWindow <- true
 
             proc.Start() |> ignore
             proc.BeginOutputReadLine()
@@ -123,8 +124,10 @@
     // Given a list of XDocuments representing a set of Nunit results, merge them all together
     let reduceNunit results =
         let mergeDocs (doc1:XDocument) (doc2:XDocument) =
-            if doc1.Root = null || doc2.Root = null then
+            if doc1.Root = null then
                 doc2
+            elif doc2.Root = null then
+                doc1
             else
                 doMergeResults doc1.Root doc2.Root
                 correctAttributes doc1

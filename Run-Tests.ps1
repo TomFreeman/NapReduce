@@ -41,14 +41,29 @@ invoke-command -ComputerName $remoteHost -Credential $credentials -port 80 -Scri
 	$resultsFile = "results.xml"
 	
 	#Run the fast-nunit exe to do all those lovely tests.
-	$commandString = "$path\FastNunit.exe -a $ass -o $resultsFile"
+
+	$job = @{
+		Id = $id
+		Path = "$path\FastNunit.exe"
+		Arguments = "-a $ass -o $resultsFile"
+	}
 	
 	if($cat)
 	{
-		$commandString += " -c:$cat"
+		$job.Arguments += " -c:$cat"
 	}
 	
-	iex $commandString
+	$response = Invoke-RestMethod -Uri http://localhost:8080/jobs -Method POST -Body $job -ContentType application/json
 	
+	# TODO: Check the response code and deal appropriately
+
+	$jobPath = $response.Headers["Location"]
+
+	do {
+		$jobStatus = Invoke-RestMethod -Uri $jobPath
+
+		Start-Sleep -Seconds 5 
+	} while ( $jobStatus -eq 201 )
+
 	Get-Content $resultsFile
 } -ArgumentList $testAssembly, $category, $testId

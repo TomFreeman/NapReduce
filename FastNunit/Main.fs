@@ -53,38 +53,51 @@ let run (args : arg) =
 
     let methods, assemblies = parseMethods args.Assembly args.Category
 
-    // Do the tests
-    let rec doTests testList currentJob =
-        match testList with
-        | (assembly, test) :: remaining -> 
-
-            // Try to get a user - potentially could be more than an Option is the service is down / the client is misbehaving
-            match userManager.GetFree() with
-            | Some(username, password) -> 
-                async {
-                    do! userManager.AssignUser(username)
-                    let! result, errLog = runNunit assembly test username password ignore
-                    do! userManager.FreeUser(username)
-
-                    result
-                    |> XDocument.Parse
-                    |> ProcessTestResult
-                    |> mailboxLoop.Post }
-                |> fun job -> job :: [currentJob] //Append the new job onto the old job, and run them both in parallel
-                |> fun task -> doTests remaining (Async.Parallel(task) |> Async.Ignore)
-
-            | None -> System.Threading.Thread.Sleep(10000)
-                      doTests ((assembly, test) :: remaining) currentJob
-        | [] -> currentJob
+    let currentDir = IO.Directory.GetCurrentDirectory()
 
     let testsToRun = methods
-                     |> Seq.map (fun t -> t, args.Assembly)
+                     |> Seq.map (fun t -> t, currentDir, args.Assembly)
                      |> Seq.toList
 
-    doTests testsToRun (async { return () })
+    // Do the tests
+    let doTests testList =
+        testList
+        |> Seq.map (fun (test, folder, assembly) ->
+                            let rec doTest() =
+                                // Try to get a user - potentially could be more than an Option is the service is down / the client is misbehaving
+                                match userManager.GetFree() with
+                                | Success(username, password) ->
+                                                            async { 
+                                    try
+                                        Console.WriteLine("Acquired user: {0} - starting test run.", username)
+                                        do! userManager.AssignUser(username)
+                                        let! result, errLog = runNunit assembly folder test username password ignore
+                                        Console.WriteLine("Results Come through: {0}, posting to queue to merge.")
+                                        Console.WriteLine("Finished test run, freeing user: {0}.", username)
+                                        do! userManager.FreeUser(username)
+
+                                        result
+                                        |> XDocument.Parse
+                                        |> ProcessTestResult
+                                        |> mailboxLoop.Post
+                                    with
+                                    | ex -> do! userManager.FreeUser(username)
+                                            raise ex
+                                    }
+                                | NotFound -> async {
+                                                System.Threading.Thread.Sleep(10000)
+                                                do! doTest() }
+                                | Error(ex) -> raise ex 
+                            doTest() )
+
+    doTests testsToRun
+    |> Seq.toArray
+    |> Async.Parallel
     |> Async.RunSynchronously
+    |> ignore
 
     let result = listener.PostAndReply GetResults
+    Console.WriteLine("Saving merged results.")
     result.Save("results.xml")
 
 // Generic entry point, just to wrap args parsing and exception logging
@@ -104,5 +117,6 @@ let main argv =
             do run args
             0
         with
-            | ex -> Console.WriteLine(ex.Message) 
+            | ex -> Console.WriteLine(ex.Message)
+                    Console.WriteLine(ex.StackTrace) 
                     -1
