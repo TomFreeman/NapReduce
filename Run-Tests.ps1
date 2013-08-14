@@ -119,6 +119,9 @@ $results = invoke-command -ComputerName $remoteHost -Credential $credentials -po
 		throw "Job failed to complete."
 	}
 
+	Write-Host "Job finished, output:"
+	Write-Host $jobStatus
+
 	Get-Content $resultsFile
 } -ArgumentList $testAssembly, $category, $testId, $zipFileName
 
