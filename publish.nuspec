@@ -18,6 +18,6 @@
     </dependencies>-->
   </metadata>
   <files>
-    <file src=".\bin\*.*" target="" />
+    <file src="bin\*.*" target="tools" />
   </files>
 </package>
