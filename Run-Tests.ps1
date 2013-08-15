@@ -6,7 +6,7 @@
 # as possible.
 #
 ##############################################################################
-param ($testAssembly, $category, $resultsFileName)
+param ($TestAssembly, $Category, $ResultsFileName, $AdditionalFiles)
 
 # Grabber from the Store-Credentials script, see there for legal / requirements
 function Import-PSCredential {
@@ -50,7 +50,7 @@ $credentials = Import-PSCredential
 $zipFileName = "input.zip"
 #run packager to build a zip
 Write-Host "Packaging up assembly and dependent files."
-.\Packager.exe -a $testAssembly -o $zipFileName
+.\Packager.exe -a $TestAssembly -o $zipFileName -f ([String]::Join(",", $AdditionalFiles))
 
 $drive = New-PSDrive -Name J -PSProvider FileSystem -Root "\\$remoteHost\Jobs" -Credential $credentials
 
@@ -123,6 +123,6 @@ $results = invoke-command -ComputerName $remoteHost -Credential $credentials -po
 	Write-Host $jobStatus
 
 	Get-Content $resultsFile
-} -ArgumentList $testAssembly, $category, $testId, $zipFileName
+} -ArgumentList $TestAssembly, $Category, $testId, $zipFileName
 
-Set-Content $resultsFileName -Value $results
+Set-Content $ResultsFileName -Value $results
