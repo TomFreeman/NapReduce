@@ -37,13 +37,13 @@ type arg() =
     [<Option('c', "category", DefaultValue=null, HelpText="Optionally provide a category")>]
     member val Cat = "" with get, set
     [<Option('o', "ouptut-file", Required=true, HelpText="Provide the name for an output file.")>]
-    member val Out = "" with get, set
+    member val OutputFile = "" with get, set
+
+    [<Option('w', "working-directory", Required=true, HelpText="Provide a working directory for the process.")>]
+    member val WorkingDirectory = "" with get, set
 
     member this.Category 
         with get () = makeOption this.Cat
-
-    member this.OutputFile
-        with get () = makeOption this.Out
 
 let run (args : arg) =
     
@@ -53,10 +53,10 @@ let run (args : arg) =
 
     let methods, assemblies = parseMethods args.Assembly args.Category
 
-    let currentDir = IO.Directory.GetCurrentDirectory()
+    IO.Directory.SetCurrentDirectory(args.WorkingDirectory)
 
     let testsToRun = methods
-                     |> Seq.map (fun t -> t, currentDir, args.Assembly)
+                     |> Seq.map (fun t -> t, args.WorkingDirectory, args.Assembly)
                      |> Seq.toList
 
     // Do the tests
@@ -98,7 +98,7 @@ let run (args : arg) =
 
     let result = listener.PostAndReply GetResults
     Console.WriteLine("Saving merged results.")
-    result.Save("results.xml")
+    result.Save(args.OutputFile)
 
 // Generic entry point, just to wrap args parsing and exception logging
 [<EntryPoint>]

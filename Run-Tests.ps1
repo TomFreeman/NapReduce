@@ -50,7 +50,14 @@ $credentials = Import-PSCredential
 $zipFileName = "input.zip"
 #run packager to build a zip
 Write-Host "Packaging up assembly and dependent files."
-.\Packager.exe -a $TestAssembly -o $zipFileName -f ([String]::Join(",", $AdditionalFiles))
+if ([String]::IsNullOrEmpty($AdditionalFiles))
+{
+	.\Packager.exe -a $TestAssembly -o $zipFileName
+}
+else
+{
+	.\Packager.exe -a $TestAssembly -o $zipFileName -f ([String]::Join(",", $AdditionalFiles))
+}
 
 $drive = New-PSDrive -Name J -PSProvider FileSystem -Root "\\$remoteHost\Jobs" -Credential $credentials
 
@@ -59,7 +66,7 @@ Copy-Item $zipFileName -Destination "J:\$testId"
 
 # Copy FastNunit and all dependencies (packager could do this, a standalone exe would be nice though.)
 Copy-Item ".\FastNunit.exe" -Destination "J:\$testId"
-".\FSharp.Core.dll", ".\nunit.framework.dll", "CommandLine.dll", "FSharp.Data.dll", "FSharp.Data.TypeProviders.dll" | % { Copy-Item $_ -Destination "J:\$testId" }
+".\FSharp.Core.dll", ".\nunit.framework.dll", "CommandLine.dll", "FSharp.Data.dll", "FSharp.Data.TypeProviders.dll", "Packager.exe" | % { Copy-Item $_ -Destination "J:\$testId" }
 
 Remove-PSDrive -Name J
 
@@ -87,9 +94,9 @@ $results = invoke-command -ComputerName $remoteHost -Credential $credentials -po
 	Write-Host "Asking manager to start the tests."
 
 	$job = @{
-		Id = $id
-		Path = "$path\FastNunit.exe"
-		Arguments = "-a $ass -o $resultsFile"
+		sessionId = $id
+		path = "$path\FastNunit.exe"
+		arguments = "-a ""$path\$ass"" -o ""$path\$resultsFile"" -w ""$path"""
 	}
 	
 	if($cat)
@@ -97,31 +104,29 @@ $results = invoke-command -ComputerName $remoteHost -Credential $credentials -po
 		$job.Arguments += " -c:$cat"
 	}
 	
-	$response = Invoke-RestMethod -Uri http://localhost:8080/jobs -Method POST -Body $job -ContentType application/json
+	$jobText = ConvertTo-Json $job -Compress
+
+	$response = Invoke-RestMethod -Uri http://localhost:8080/jobs -Method POST -Body $jobText -ContentType application/json
 	
 	# TODO: Check the response code and deal appropriately
-	if ($response.StatusCode -ne 301)
+	if ($response -eq $null)
 	{
 		throw "Failed to create a new job."
 	}
 
-	$jobPath = $response.Headers["Location"]
+	$jobPath = "http://localhost:8080/job/$id"
 
 	Write-Host "Waiting for the job to finish."
 	do {
 		$jobStatus = Invoke-RestMethod -Uri $jobPath
 
 		Start-Sleep -Seconds 5 
-	} while ( $jobStatus.StatusCode -eq 201 )
+	} while ( -not $jobStatus.completed )
 
-	if ($jobStatus.StatusCode -ne 200)
-	{
-		throw "Job failed to complete."
-	}
 
 	Write-Host "Job finished, output:"
 	Write-Host $jobStatus
-
+	
 	Get-Content $resultsFile
 } -ArgumentList $TestAssembly, $Category, $testId, $zipFileName
 
