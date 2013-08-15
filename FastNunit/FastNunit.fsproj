@@ -86,7 +86,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="NunitAssemblyParser.fs" />
     <Compile Include="Nunit.fs" />
     <None Include="App.config" />
     <None Include="packages.config" />
