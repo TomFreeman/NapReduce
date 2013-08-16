@@ -75,13 +75,17 @@
 
         printfn "Filtering tests list\n"
         // Indenting warnings, but the alternative is unreadable
-        let filtered = match category with
+        let filtered = 
+            match category with
             | Some(catFilter) -> methods 
-                                 |> Seq.filter (fun m -> m.GetCustomAttributesData()
+                                 |> Seq.filter (fun m -> let attributes = Seq.append (m.ReflectedType.GetCustomAttributesData()) (m.GetCustomAttributesData())
+                                                         attributes
                                                          |> Seq.exists (fun cat -> cat.AttributeType.Name = "CategoryAttribute" && 
-                                                                cat.ConstructorArguments 
-                                                                |> Seq.exists (fun v -> v.ArgumentType = typeof<string> &&
-                                                                                    (v.Value :?> string) = catFilter )) )
+                                                                                   (cat.ConstructorArguments 
+                                                                                    |> Seq.exists (fun v -> v.ArgumentType.Name = "String" &&
+                                                                                                            (v.Value :?> string) = catFilter ))) )
+                                 |> Seq.toList
+                                 |> List.toSeq
             | None -> methods
 
         // return the list of tests, and all required assemblies (excluding the test assembly)

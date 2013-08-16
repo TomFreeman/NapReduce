@@ -60,7 +60,7 @@ let run (args : arg) =
                      |> Seq.toList
 
     testsToRun
-    |> Seq.iter (fun (test, _, _) -> printf "Queueing %s to be run" test )
+    |> Seq.iter (fun (test, _, _) -> printf "Queueing %s to be run\n" test )
 
     // Do the tests
     let doTests testList =

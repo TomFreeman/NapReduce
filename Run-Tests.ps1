@@ -130,7 +130,7 @@ function Run-Tests() {
 	
 		if($cat)
 		{
-			$job.Arguments += " -c:$cat"
+			$job.Arguments += " -c $cat"
 		}
 	
 		$jobText = ConvertTo-Json $job -Compress

@@ -9,6 +9,7 @@ namespace FastNunit.Tests
     /// The parallel tests.
     /// </summary>
     [TestFixture]
+    [Category("Parallel")]
     public class ParallelTests
     {
         #region Static Fields

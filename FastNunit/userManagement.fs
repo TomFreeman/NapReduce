@@ -69,7 +69,7 @@ type UserManager() =
         |> Async.RunSynchronously
 
     member this.AssignUser(username) = async {             
-            let request = createRequest (sprintf "/user/%s" username)
+            let request = createRequest (sprintf "user/%s" username)
             request.Method <- "PUT"
             
             use! response = request.AsyncGetResponse()
@@ -81,7 +81,7 @@ type UserManager() =
     }
 
     member this.FreeUser(username) =  async {
-            let request = createRequest (sprintf "/user/%s" username)
+            let request = createRequest (sprintf "user/%s" username)
             request.Method <- "DELETE"
             
             use! response = request.AsyncGetResponse()

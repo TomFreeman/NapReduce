@@ -23,7 +23,7 @@ type Argument() =
 
     member this.AdditionalFiles 
         with get () = 
-            if this.Extras = null && this.Extras.Length = 0 then
+            if this.Extras = null || this.Extras.Length = 0 then
                 None
             else
                 Some(this.Extras)

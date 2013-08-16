@@ -25,6 +25,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DocumentationFile>bin\Debug\Packager.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
+    <StartArguments>-a ..\..\..\bin\FastNunit.Tests.dll -o .\input.zip -c Parallel</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -36,7 +37,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DocumentationFile>bin\Release\Packager.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
-    <StartArguments>-a ..\FastNunit.Tests\bin\Release\FastNunit.Tests.dll -o .\input.zip</StartArguments>
+    <StartArguments>-a ..\bin\FastNunit.Tests.dll -o .\input.zip -c Parallel</StartArguments>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CommandLine">
