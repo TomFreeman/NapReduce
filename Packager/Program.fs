@@ -3,6 +3,7 @@
 open Ionic.Zip
 open NunitAssemblyParser
 open CommandLine
+open Helpers
 
 type Argument() = 
     let makeOption v =
@@ -15,17 +16,17 @@ type Argument() =
     member val Assembly = "" with get, set
     [<Option('c', "category", DefaultValue=null, HelpText="Optionally provide a category")>]
     member val Cat = "" with get, set
-    [<Option('f', "additional-files", DefaultValue=null, HelpText="Optionally provide extra files that can't be resolved as direct dependencies")>]
-    member val Extras = "" with get, set
-    [<Option('o', "ouptut-file", Required=true, HelpText="Provide the name for an output file.")>]
+    [<OptionArray('f', "additional-files", DefaultValue=null, HelpText="Optionally provide extra files that can't be resolved as direct dependencies")>]
+    member val Extras = Array.empty<string> with get, set
+    [<Option('o', "output-file", Required=true, HelpText="Provide the name for an output file.")>]
     member val OutputFile = "" with get, set
 
     member this.AdditionalFiles 
         with get () = 
-            if this.Extras = null then
+            if this.Extras = null && this.Extras.Length = 0 then
                 None
             else
-                Some(this.Extras.Split([|','|], StringSplitOptions.RemoveEmptyEntries))
+                Some(this.Extras)
 
     member this.Category 
         with get () = makeOption this.Cat
@@ -41,7 +42,10 @@ let run (args:Argument) =
     let additionalFiles = 
         match args.AdditionalFiles with
         | None -> assemblies
-        | Some(files) -> files |> Array.append assemblies
+        | Some(files) -> files |> Seq.iter (fun file -> printf "Adding extra file %s\n" file)
+                         files |> Array.append assemblies
+        |> Seq.distinct
+        |> Seq.toArray
         |> Array.map (fun path -> path.Replace(currentDir, "") )
 
     zipFile.AddFiles(additionalFiles, true, null)

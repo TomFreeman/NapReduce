@@ -67,10 +67,15 @@
     let runNunit assembly folder test username password (logger : string -> unit) =
         async
             {
+
+            logger (sprintf "Starting Nunit in %s\n" folder)
+
             let id = System.Guid.NewGuid().ToString()
             use proc = new Process()
             proc.StartInfo.FileName <- @"c:\Program Files (x86)\NUnit 2.6.2\bin\nunit-console-x86.exe"
             proc.StartInfo.Arguments <- assembly + @" /run=" + test + @" /result=" + id + @" /noshadow"
+
+            logger (sprintf "Starting process: %s\n\twith arguments: %s" proc.StartInfo.FileName proc.StartInfo.Arguments )
 
             let log sender (args : DataReceivedEventArgs ) =
                 logger(args.Data)

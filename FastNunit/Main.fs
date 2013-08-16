@@ -47,17 +47,20 @@ type arg() =
 
 let run (args : arg) =
     
+    IO.Directory.SetCurrentDirectory(args.WorkingDirectory)
+
     let listener = mailboxLoop
 
     let userManager = new UserManager()
 
     let methods, assemblies = parseMethods args.Assembly args.Category
 
-    IO.Directory.SetCurrentDirectory(args.WorkingDirectory)
-
     let testsToRun = methods
                      |> Seq.map (fun t -> t, args.WorkingDirectory, args.Assembly)
                      |> Seq.toList
+
+    testsToRun
+    |> Seq.iter (fun (test, _, _) -> printf "Queueing %s to be run" test )
 
     // Do the tests
     let doTests testList =
@@ -71,7 +74,7 @@ let run (args : arg) =
                                     try
                                         Console.WriteLine("Acquired user: {0} - starting test run.", username)
                                         do! userManager.AssignUser(username)
-                                        let! result, errLog = runNunit assembly folder test username password ignore
+                                        let! result, errLog = runNunit assembly folder test username password (Console.WriteLine)
                                         Console.WriteLine("Results Come through: {0}, posting to queue to merge.")
                                         Console.WriteLine("Finished test run, freeing user: {0}.", username)
                                         do! userManager.FreeUser(username)
