@@ -56,26 +56,11 @@ Write-Host "Script residing at $scriptPath"
 function Run-Tests() {
 	param ($TestAssembly, $Category, $ResultsFileName, $AdditionalFiles)
 
-	# Grabber from the Store-Credentials script, see there for legal / requirements
-	function Import-PSCredential {
-			param ( $Path = "$scriptPath\credentials.enc.xml" )
- 
-			# Import credential file
-			$import = Import-Clixml $Path
-       
-			# Test for valid import
-			if ( $import.PSObject.TypeNames -notcontains 'Deserialized.ExportedPSCredential' ) {
-					Throw "Input is not a valid ExportedPSCredential object, exiting."
-			}
-			$Username = $import.Username
-       
-			# Decrypt the password and store as a SecureString object for safekeeping
-			$SecurePass = $import.EncryptedPassword | ConvertTo-SecureString
-       
-			# Build the new credential object
-			$Credential = New-Object System.Management.Automation.PSCredential $Username, $SecurePass
-			Write-Output $Credential
-	}
+	Write-Host "Importing credentials management."
+	. "$scriptPath\Store-Credentials.ps1"
+
+	Write-Host "Importing stored credentials."
+	$credentials = Import-PSCredential
 
 	# If not already enabled, turn on PSRemoting
 	$remoteHost = "btmgsrvhpv02.brislabs.com"
