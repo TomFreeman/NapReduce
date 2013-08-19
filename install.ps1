@@ -1,18 +1,17 @@
 param($installPath, $toolsPath, $package, $project)
 
-if (-not (Test-Path $Profile))
+$paths = ($env:PSModulePath).Split(';')
+
+$path = $paths[0] + "\Run-Tests"
+
+if (-not (Test-Path $path))
 {
-	# Command to create a PowerShell profile
-	New-Item -path $profile -type file -force
+	New-Item -Path $path -Type directory -Force
 }
 
-$currentProfile = Get-Content $profile
+Write-Host "Copying module files over to $path"
 
-if ($currentProfile -notcontains "Run-Tests.ps1")
-{
-	$currentProfile += @"
-	. $toolsPath\Run-Tests.ps1
-	"@
+Copy-Item -Path $toolsPath\Run-Tests.psm1 -Destination $path -Force
+Copy-Item -Path $toolsPath\credentials.enc.xml -Destination $path -Force
 
-	Set-Content -Path $profile -Value $currentProfile
-}
+Import-Module Run-Tests.psm1

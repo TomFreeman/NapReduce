@@ -106,7 +106,7 @@
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(ProjectDir)..\Run-Tests.ps1" "$(TargetDir)"
+    <PostBuildEvent>copy "$(ProjectDir)..\Run-Tests.psm1" "$(TargetDir)"
 copy "$(ProjectDir)..\Store-Credentials.ps1" "$(TargetDir)"
 copy "$(ProjectDir)..\credentials.enc.xml" "$(TargetDir)"
 copy "$(ProjectDir)..\install.ps1" "$(TargetDir)"</PostBuildEvent>

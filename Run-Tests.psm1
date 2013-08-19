@@ -20,6 +20,39 @@ function Get-ScriptDirectory {
 $scriptPath = Get-ScriptDirectory
 Write-Host "Script residing at $scriptPath"
 
+<# 
+ .Synopsis
+  Run a bunch of Nunit tests on our big ol' server.
+
+ .Description
+  Packages up dependencies, then copies them to a share on the test server
+  before running a job to execute the tests.
+
+ .Parameter TestAssembly
+  The assembly the tests are located in.
+
+ .Parameter Category (optional)
+  The category of tests to run, as defined in Nunit.
+
+ .Parameter ResultsFileName
+  The filename to store the results in.
+
+ .Parameter AdditionalFiles (optional)
+  Any additional files that the tests depend on, assembly dependencies will be automatically resolved
+  so this list should be additional non-code dependencies, i.e. config files.
+
+ .Example
+   # Run all the tests in a given assembly and save to results.xml
+   Run-Tests -TestAsssembly Nunit.Tests.dll -ResultsFileName results.xml
+
+ .Example
+   # Run all tests in a category
+   Run-Tests -TestAsssembly Nunit.Tests.dll -Category sanity -ResultsFileName results.xml
+
+ .Example
+   # Run all tests with a couple of additional files
+   Run-Tests -TestAssembly Nunit.Tests.dll -ResultsFileName results.xml -AdditionalFiles Nunit.Tests.dll.config,Additional.Data.xml
+#>
 function Run-Tests() {
 	param ($TestAssembly, $Category, $ResultsFileName, $AdditionalFiles)
 
@@ -165,3 +198,5 @@ function Run-Tests() {
 
 	Set-Content $ResultsFileName -Value $results
 }
+
+export-ModuleMember -Function Run-Tests

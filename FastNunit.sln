@@ -13,7 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{4E67
 	ProjectSection(SolutionItems) = preProject
 		credentials.enc.xml = credentials.enc.xml
 		install.ps1 = install.ps1
-		Run-Tests.ps1 = Run-Tests.ps1
+		Run-Tests.psm1 = Run-Tests.psm1
 		Store-Credentials.ps1 = Store-Credentials.ps1
 	EndProjectSection
 EndProject
