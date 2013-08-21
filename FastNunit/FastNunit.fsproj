@@ -25,9 +25,8 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DocumentationFile>bin\Debug\FastNunit.XML</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
-    <StartArguments>..\..\..\FastNunit.Tests\bin\Debug\FastNunit.Tests.dll</StartArguments>
-    <StartWorkingDirectory>
-    </StartWorkingDirectory>
+    <StartArguments>-a Nokia.Media.MusicClient.Spec.dll -c ci -w "C:\Users\tooleypi\Code\Nokia\maleficent-master\Nokia.Media.MusicClient.Spec\bin\BDD\" -o results2.xml</StartArguments>
+    <StartWorkingDirectory>C:\Users\tooleypi\Code\Nokia\maleficent-master\Nokia.Media.MusicClient.Spec\bin\BDD\</StartWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -40,10 +39,10 @@
     <DocumentationFile>
     </DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
-    <StartArguments>-a Nokia.Media.MusicClient.Spec.dll -c ci</StartArguments>
+    <StartArguments>-a "Nokia.Media.MusicClient.Spec.dll" -c ci -w "C:\Users\tooleypi\Code\Nokia\maleficent-master\Nokia.Media.MusicClient.Spec\bin\BDD" -o results2.xml -i "test2"</StartArguments>
     <OtherFlags>
     </OtherFlags>
-    <StartWorkingDirectory>C:\Code\client\master\Nokia.Media.MusicClient.Spec\bin\BDD\</StartWorkingDirectory>
+    <StartWorkingDirectory>C:\Users\tooleypi\Code\Nokia\maleficent-master\Nokia.Media.MusicClient.Spec\bin\BDD\</StartWorkingDirectory>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CommandLine">

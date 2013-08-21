@@ -158,7 +158,7 @@ function Run-Tests() {
 		$job = @{
 			sessionId = $id
 			path = "$path\FastNunit.exe"
-			arguments = "-a ""$ass"" -o ""$resultsFile"" -w ""$path"""
+			arguments = "-a ""$ass"" -o ""$resultsFile"" -i ""$id"" -w ""$path"""
 		}
 	
 		if($cat)

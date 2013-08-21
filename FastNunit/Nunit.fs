@@ -88,7 +88,7 @@
             proc.StartInfo.UserName <- username
             proc.StartInfo.Password <- password
             proc.StartInfo.WorkingDirectory <- folder
-            proc.StartInfo.CreateNoWindow <- true
+            //proc.StartInfo.CreateNoWindow <- true
 
             proc.Start() |> ignore
             proc.BeginOutputReadLine()

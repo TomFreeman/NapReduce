@@ -56,7 +56,7 @@ type UserManager() =
             userList.Parse(text)
         tryMakeGet "users" parse        
 
-    member this.GetFree() =
+    member this.GetFree(sessionId) =
 
         let parse text =
             let user = user.Parse(text)
@@ -65,7 +65,7 @@ type UserManager() =
                                                                     sec) (new SecureString())
             user.Name, pass
 
-        tryMakeGet "free/user" parse
+        tryMakeGet (sprintf "free/user?sessionId=%s" sessionId) parse
         |> Async.RunSynchronously
 
     member this.AssignUser(username) = async {             

@@ -34,10 +34,15 @@ type arg() =
 
     [<Option('a', "assembly", Required=true, HelpText="Input assembly containing Nunit tests.")>]
     member val Assembly = "" with get, set
+
     [<Option('c', "category", DefaultValue=null, HelpText="Optionally provide a category")>]
     member val Cat = "" with get, set
+
     [<Option('o', "ouptut-file", Required=true, HelpText="Provide the name for an output file.")>]
     member val OutputFile = "" with get, set
+
+    [<Option('i', "session-id", Required=true, HelpText="Need a sessionId for these tests")>]
+    member val SessionId = "" with get, set
 
     [<Option('w', "working-directory", Required=true, HelpText="Provide a working directory for the process.")>]
     member val WorkingDirectory = "" with get, set
@@ -68,7 +73,7 @@ let run (args : arg) =
         |> Seq.map (fun (test, folder, assembly) ->
                             let rec doTest() =
                                 // Try to get a user - potentially could be more than an Option is the service is down / the client is misbehaving
-                                match userManager.GetFree() with
+                                match userManager.GetFree(args.SessionId) with
                                 | Success(username, password) ->
                                                             async { 
                                     try
@@ -111,6 +116,7 @@ let main argv =
     let showHelp () =
         let help = CommandLine.Text.HelpText.AutoBuild(args)
         Console.Write (help.ToString())
+        let read = Console.ReadLine();
         -1
     
     if not (CommandLine.Parser.Default.ParseArguments(argv, args)) then
@@ -121,5 +127,6 @@ let main argv =
             0
         with
             | ex -> Console.WriteLine(ex.Message)
-                    Console.WriteLine(ex.StackTrace) 
+                    Console.WriteLine(ex.StackTrace)
+                    let read = Console.ReadLine();
                     -1
