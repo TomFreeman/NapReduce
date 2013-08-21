@@ -11,7 +11,6 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Packager", "Packager\Packag
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{4E67674F-3807-4450-A0CC-279A1C814069}"
 	ProjectSection(SolutionItems) = preProject
-		credentials.enc.xml = credentials.enc.xml
 		install.ps1 = install.ps1
 		Run-Tests.psm1 = Run-Tests.psm1
 		Store-Credentials.ps1 = Store-Credentials.ps1

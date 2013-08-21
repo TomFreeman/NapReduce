@@ -107,7 +107,6 @@
   <PropertyGroup>
     <PostBuildEvent>copy "$(ProjectDir)..\Run-Tests.psm1" "$(TargetDir)"
 copy "$(ProjectDir)..\Store-Credentials.ps1" "$(TargetDir)"
-copy "$(ProjectDir)..\credentials.enc.xml" "$(TargetDir)"
 copy "$(ProjectDir)..\install.ps1" "$(TargetDir)"</PostBuildEvent>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

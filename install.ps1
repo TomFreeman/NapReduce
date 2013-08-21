@@ -11,7 +11,6 @@ if (-not (Test-Path $path))
 
 Write-Host "Copying module files over to $path"
 
-Copy-Item -Path $toolsPath\Run-Tests.psm1 -Destination $path -Force
-Copy-Item -Path $toolsPath\credentials.enc.xml -Destination $path -Force
+Copy-Item -Path $toolsPath\* -Destination $path -Force
 
-Import-Module Run-Tests.psm1
+Import-Module Run-Tests.psm1 -Force

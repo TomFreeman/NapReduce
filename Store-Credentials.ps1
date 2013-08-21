@@ -45,3 +45,31 @@ function Export-PSCredential {
         # Return FileInfo object referring to saved credentials
         Get-Item $Path
 }
+
+
+# Grabber from the Store-Credentials script, see there for legal / requirements
+function Import-PSCredential {
+		param ( $Path = "credentials.enc.xml" )
+ 
+		if (-not (Test-Path $Path))
+		{
+			Write-Host "Asking for credentials to store."
+			Export-PSCredential -Path $Path
+		}
+
+		# Import credential file
+		$import = Import-Clixml $Path
+       
+		# Test for valid import
+		if ( $import.PSObject.TypeNames -notcontains 'Deserialized.ExportedPSCredential' ) {
+				Throw "Input is not a valid ExportedPSCredential object, exiting."
+		}
+		$Username = $import.Username
+       
+		# Decrypt the password and store as a SecureString object for safekeeping
+		$SecurePass = $import.EncryptedPassword | ConvertTo-SecureString
+       
+		# Build the new credential object
+		$Credential = New-Object System.Management.Automation.PSCredential $Username, $SecurePass
+		Write-Output $Credential
+}
