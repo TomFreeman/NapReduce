@@ -1,14 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FastNunit", "FastNunit\FastNunit.fsproj", "{8E3A9421-2D34-4F15-9399-DFF1549F6E1E}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastNunit.Tests", "FastNunit.Tests\FastNunit.Tests.csproj", "{5C6CFDDD-E698-4368-9253-8C8365C3CFFD}"
-EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FastNunit.Mapper.Tests", "FastNunit.Mapper.Tests\FastNunit.Mapper.Tests.fsproj", "{EF1A5C03-C21A-4750-B9C6-25B10C208A38}"
-EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Packager", "Packager\Packager.fsproj", "{FEED7728-ABC9-4011-BB75-8BEDF0F848A5}"
-EndProject
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30501.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{4E67674F-3807-4450-A0CC-279A1C814069}"
 	ProjectSection(SolutionItems) = preProject
 		install.ps1 = install.ps1
@@ -27,6 +21,26 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Publish", "Publish", "{B9B7
 	ProjectSection(SolutionItems) = preProject
 		publish.nuspec = publish.nuspec
 	EndProjectSection
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FastNunit", "FastNunit\FastNunit.fsproj", "{8E3A9421-2D34-4F15-9399-DFF1549F6E1E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastNunit.Tests", "FastNunit.Tests\FastNunit.Tests.csproj", "{5C6CFDDD-E698-4368-9253-8C8365C3CFFD}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FastNunit.Mapper.Tests", "FastNunit.Mapper.Tests\FastNunit.Mapper.Tests.fsproj", "{EF1A5C03-C21A-4750-B9C6-25B10C208A38}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Packager", "Packager\Packager.fsproj", "{FEED7728-ABC9-4011-BB75-8BEDF0F848A5}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "NapReduce.Server", "NapReduce.Server\NapReduce.Server.fsproj", "{BCE28CAD-5CCF-48AB-AF67-4507CA575FA6}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "NapReduce.Client.Tasks", "NapReduce.Client\NapReduce.Client.Tasks.fsproj", "{EDC94448-7E79-4D15-9470-ECB13D9E2DAD}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Client", "Client\Client.fsproj", "{28341C66-5B65-45E7-8F9A-CAEC987E03AF}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "NapReduce.Common", "NapReduce.Common\NapReduce.Common.fsproj", "{5C11A08B-A032-4F67-ADD7-FD82270562C5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{43153BF0-D10A-4EC4-859C-F898C21E4ED2}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "NapReduce.Common.Tests", "NapReduce.Common.Tests\NapReduce.Common.Tests.fsproj", "{3122975C-36D4-4FE9-8733-B79A99887D41}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,8 +64,31 @@ Global
 		{FEED7728-ABC9-4011-BB75-8BEDF0F848A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FEED7728-ABC9-4011-BB75-8BEDF0F848A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FEED7728-ABC9-4011-BB75-8BEDF0F848A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BCE28CAD-5CCF-48AB-AF67-4507CA575FA6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCE28CAD-5CCF-48AB-AF67-4507CA575FA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCE28CAD-5CCF-48AB-AF67-4507CA575FA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCE28CAD-5CCF-48AB-AF67-4507CA575FA6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EDC94448-7E79-4D15-9470-ECB13D9E2DAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDC94448-7E79-4D15-9470-ECB13D9E2DAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDC94448-7E79-4D15-9470-ECB13D9E2DAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDC94448-7E79-4D15-9470-ECB13D9E2DAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28341C66-5B65-45E7-8F9A-CAEC987E03AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28341C66-5B65-45E7-8F9A-CAEC987E03AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28341C66-5B65-45E7-8F9A-CAEC987E03AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28341C66-5B65-45E7-8F9A-CAEC987E03AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C11A08B-A032-4F67-ADD7-FD82270562C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C11A08B-A032-4F67-ADD7-FD82270562C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C11A08B-A032-4F67-ADD7-FD82270562C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C11A08B-A032-4F67-ADD7-FD82270562C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3122975C-36D4-4FE9-8733-B79A99887D41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3122975C-36D4-4FE9-8733-B79A99887D41}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3122975C-36D4-4FE9-8733-B79A99887D41}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3122975C-36D4-4FE9-8733-B79A99887D41}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3122975C-36D4-4FE9-8733-B79A99887D41} = {43153BF0-D10A-4EC4-859C-F898C21E4ED2}
 	EndGlobalSection
 EndGlobal
