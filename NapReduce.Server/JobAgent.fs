@@ -1,17 +1,15 @@
 ﻿module JobAgent
 
+    open System
     open System.Threading
+
     open NapReduce.Common
+    open NapReduce.Tasks
 
     type Agent<'T> = MailboxProcessor<'T>
 
-    type TaskMessage =
-    | ListAvailable
-    | Take 
-    | Completed of Test
-    | TemporaryFail of Test
-
     type State = {
+        JobId : Guid
         Available : Test list
         Taken : Test list
         ForRetry : Test list
@@ -45,7 +43,7 @@
             Agent<TaskMessage>.Start(fun proc ->
                 let rec loop (state:State) = 
                     async {
-                        task.TasksAvailable()
+                        task.TasksAvailable(state.JobId, proc.Post)
 
                         feedback.Trigger state
 
@@ -53,7 +51,8 @@
 
                         return!
                             match msg with
-                            | ListAvailable -> loop state
+                            | ListAvailable -> task.TasksAvailable(state.JobId, proc.Post)
+                                               loop state
                             | TemporaryFail test -> 
                                 let newState = { 
                                     state with
@@ -63,12 +62,10 @@
                             | Take ->
                                 match state with
                                 | Incomplete (av, taken, task) ->
-                                    let newState = {
-                                        Available = av;
-                                        Taken = taken;
-                                        ForRetry = state.ForRetry;
-                                        Complete = state.Complete
-                                    }
+                                    let newState = { 
+                                        state with
+                                            Available = av;
+                                            Taken = taken; }
                                     loop newState
                                 | Complete state -> complete.Trigger state
                                                     finish 

@@ -1,5 +1,7 @@
 ﻿module Program
 
+    open System
+
     open Microsoft.AspNet.SignalR
     open Microsoft.AspNet.SignalR.Client
 
@@ -11,7 +13,7 @@
 
         let proxy = connection.CreateHubProxy("tasks")
 
-        let jobs = proxy.On("jobsAvailable", (fun () -> System.Console.WriteLine("Tasks Available")))
+        let jobs = proxy.On<Guid>("jobsAvailable", (fun id -> System.Console.WriteLine("Tasks Available in {0}", id)))
 
         connection.Start().Wait()
 

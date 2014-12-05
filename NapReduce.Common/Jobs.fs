@@ -2,13 +2,14 @@
 
 open System
 
-type Result =
-    | Passed
-    | Failed of string[]
+type Test = {
+    Name : string
+    JobId : Guid
+    }
 
-type Test = 
-    | Name of string
-    | Result of Result
+type Result =
+    | Passed of Test
+    | Failed of Test * string[]
 
 type Tests =
     | Category of string

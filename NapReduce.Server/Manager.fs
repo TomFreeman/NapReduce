@@ -5,23 +5,30 @@ open JobAgent
 
 open System
 
-let createJob tasks = {
-    Available = tasks;
+let createJob tasks = 
+    let id = Guid.NewGuid()
+    {
+    JobId = id;
+    Available = tasks |> List.map (fun t -> {Name = t; JobId = id});
     Taken = [];
     Complete = [];
     ForRetry = []; }
 
 let createCodedUITestList job =
-    Name("Test One") :: Name("Test Two") :: []
+    "Test One" :: "Test Two" :: []
     |> createJob
 
 let StartNunitJob job =
-    ()
+    let task = createCodedUITestList job
+    let agent = new JobProcessor(task)
+    agent.Start()
+    agent
 
 let StartCodedUIJob job =
     let task = createCodedUITestList job
     let agent = new JobProcessor(task)
     agent.Start()
+    agent
 
 let Start (job:Job) =
     match job.Type with
